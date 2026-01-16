@@ -7,6 +7,9 @@ spec:
     storage: 1Gi
   accessModes:
     - ReadWriteOnce
+  ports:
+    - protocol: TCP
+    - target port: 9376
   hostPath:
     path: "/mnt/data" 
 
