@@ -1,0 +1,36 @@
+pipeline {
+    agent any 
+    
+    triggers {
+        // Automatically start when you push to Git
+        githubPush() 
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Pulls the latest files from your repository
+                checkout scm 
+            }
+        }
+
+        stage('Deploy to Nginx') {
+            steps {
+                script {
+                    // Standard Nginx HTML path is usually /var/www/html or /usr/share/nginx/html
+                    // We use sudo to ensure we have permission to write to system folders
+                    sh 'sudo cp -R * /var/www/html/'
+                    
+                    // Optional: Set correct permissions so Nginx can read the files
+                    sh 'sudo chmod -R 755 /var/www/html/'
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Deployment to Nginx successful!'
+        }
+    }
+}
