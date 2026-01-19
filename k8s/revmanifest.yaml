@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: stateful-nginx
+spec:
+  serviceName: "nginx"
+  replicas: 3 # Number of replicas as specified in your requirement
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable-alpine # The Docker image to deploy
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www-data
+          mountPath: /usr/share/nginx/html # Path inside the container
+  volumeClaimTemplates: # This dynamically creates the "Docker Volume" in K8s
+  - metadata:
+      name: www-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
