@@ -1,0 +1,40 @@
+pipeline {
+    agent any 
+
+    triggers {
+        // Automatically triggers the build when code is pushed to Git
+        githubPush() 
+    }
+
+    stages {
+        stage('1. Pull from Git') {
+            steps {
+                // This step clones the repository into the Jenkins workspace
+                checkout scm 
+            }
+        }
+
+        stage('2. Copy to HTML folder') {
+            steps {
+                // 'sh' executes shell commands on the build node
+                script {
+                    // Navigate to the workspace and copy all files to the Nginx directory
+                    // Using -v (verbose) helps see the files being copied in the logs
+                    sh 'sudo cp -rv ${WORKSPACE}/* /var/www/html/'
+                    
+                    // Set appropriate permissions so Nginx can serve the files
+                    sh 'sudo chmod -R 755 /var/www/html/'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Files successfully pulled from Git and deployed to Nginx!'
+        }
+        failure {
+            echo 'Deployment failed. Please check Jenkins permissions or path availability.'
+        }
+    }
+}
